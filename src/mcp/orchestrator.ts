@@ -1,53 +1,32 @@
+/**
+ * DEPRECATED: This module is legacy. Use @/core/orchestrator instead.
+ *
+ * Kept for backward compatibility. All new code should use:
+ * - import { orchestrateRequest } from '@/core/orchestrator'
+ */
+
 import { MCPRequest } from "@/types";
-import { PolicyEngine } from "@/policy/engine";
+import { orchestrateRequest } from "@/core/orchestrator";
+import { createDefaultPolicyEngine } from "@/core/policyEngine";
 import { ContentPolicy } from "@/policy/rules/content";
 import { UsagePolicy } from "@/policy/rules/usage";
-import { canExecute } from "@/access/rbac";
-import { executeWithMcpSDK } from "@/executor/mcpSdkExecutor";
-import { logDecision } from "@/audit/logger";
 
+// Create default policy engine
+const policyEngine = createDefaultPolicyEngine(
+  new ContentPolicy(),
+  new UsagePolicy()
+);
 
-const policyEngine = new PolicyEngine([
-new ContentPolicy(),
-new UsagePolicy(),
-]);
-
-
+/**
+ * Legacy handler - use orchestrateRequest instead
+ * @deprecated Use orchestrateRequest from @/core/orchestrator
+ */
 export async function handleMCP(request: MCPRequest) {
-if (!canExecute(request.identity, "use:basic:model")) {
-logDecision({
-subjectId: request.identity.subjectId,
-decision: "DENY",
-reason: "RBAC denied",
-});
-throw new Error("Access denied");
-}
+  const result = await orchestrateRequest(request, policyEngine);
 
+  if (!result.allowed) {
+    throw new Error(result.reason || "Access denied");
+  }
 
-const policyResult = policyEngine.evaluate({
-prompt: request.prompt,
-model: request.model,
-tool: request.tool,
-identityRole: request.identity.role,
-});
-
-
-if (!policyResult.allowed) {
-logDecision({
-subjectId: request.identity.subjectId,
-decision: "DENY",
-reason: policyResult.reason,
-policy: policyResult.policy,
-});
-throw new Error(policyResult.reason);
-}
-
-
-logDecision({
-subjectId: request.identity.subjectId,
-decision: "ALLOW",
-});
-
-
-return executeWithMcpSDK(request);
+  return result;
 }

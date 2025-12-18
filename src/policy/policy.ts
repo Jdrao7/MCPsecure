@@ -1,17 +1,35 @@
-export type PolicyResult =
-| { allowed: true }
-| { allowed: false; reason: string; policy: string };
+import { PolicyContext, PolicyResult } from "@/types";
 
-
-export type PolicyContext = {
-prompt: string;
-model: string;
-tool?: string;
-identityRole: string;
-};
-
-
+/**
+ * Policy Interface
+ * Defines the contract for policy evaluation
+ * All policies must implement this interface
+ */
 export interface Policy {
-name: string;
-evaluate(context: PolicyContext): PolicyResult;
+  /** Unique name of the policy */
+  name: string;
+
+  /** Evaluate the policy with the given context */
+  evaluate(context: PolicyContext): PolicyResult;
+}
+
+/**
+ * Helper to create an ALLOW result
+ */
+export function allowResult(): PolicyResult {
+  return { allowed: true };
+}
+
+/**
+ * Helper to create a DENY result
+ */
+export function denyResult(
+  reason: string,
+  policy: string
+): PolicyResult {
+  return {
+    allowed: false,
+    reason,
+    policy,
+  };
 }

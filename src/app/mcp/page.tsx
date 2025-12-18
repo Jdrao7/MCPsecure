@@ -8,14 +8,24 @@ type Identity = {
   role: "admin" | "user" | "agent";
 };
 
-type ResponseData = { output?: string; error?: string; };
+type ResponseData = { 
+  success?: boolean;
+  data?: { 
+    response?: string; 
+    metadata?: Record<string, any>;
+  };
+  error?: string; 
+  message?: string;
+  reason?: string;
+  policy?: string;
+};
 
 export default function MCPApiPage() {
   const router = useRouter();
   const [identity, setIdentity] = useState<Identity | null>(null);
   
   // Form State
-  const [model, setModel] = useState("gpt-3.5");
+  const [model, setModel] = useState("mixtral-8x7b-32768");
   const [tool, setTool] = useState("");
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -110,8 +120,8 @@ export default function MCPApiPage() {
                       onChange={(e) => setModel(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm focus:ring-2 focus:ring-indigo-500"
                     >
-                      <option value="gpt-3.5">GPT-3.5</option>
-                      <option value="gpt-4">GPT-4 (Admin)</option>
+                      <option value="llama-3.1-8b-instant">Llama 3.1 8B (Fastest)</option>
+                      <option value="llama-3.1-70b-versatile">Llama 3.1 70B (Advanced - Agent+)</option>
                     </select>
                   </div>
                   <div>
@@ -166,17 +176,56 @@ export default function MCPApiPage() {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-bold uppercase">Status: {statusCode}</span>
                 </div>
-                <pre className="text-sm font-mono whitespace-pre-wrap break-words">
-                  {response.error || response.output}
-                </pre>
+                <div className="space-y-3">
+                  {/* Success Response */}
+                  {isSuccess && response.data?.response && (
+                    <div>
+                      <span className="text-xs font-bold uppercase block mb-1">Response:</span>
+                      <pre className="text-sm font-mono whitespace-pre-wrap break-words bg-white/30 p-2 rounded">
+                        {response.data.response}
+                      </pre>
+                    </div>
+                  )}
+                  
+                  {/* Metadata */}
+                  {isSuccess && response.data?.metadata && (
+                    <div>
+                      <span className="text-xs font-bold uppercase block mb-1">Metadata:</span>
+                      <pre className="text-xs font-mono whitespace-pre-wrap break-words bg-white/30 p-2 rounded">
+                        {JSON.stringify(response.data.metadata, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                  
+                  {/* Error Response */}
+                  {!isSuccess && (
+                    <div>
+                      <span className="text-xs font-bold uppercase block mb-1">Error:</span>
+                      <pre className="text-sm font-mono whitespace-pre-wrap break-words">
+                        {response.error || response.message || "Unknown error"}
+                      </pre>
+                      {response.reason && (
+                        <div className="text-xs mt-2">
+                          <span className="font-bold">Reason:</span> {response.reason}
+                        </div>
+                      )}
+                      {response.policy && (
+                        <div className="text-xs mt-1">
+                          <span className="font-bold">Policy:</span> {response.policy}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             
             <div className="p-4 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500">
                <p className="font-bold mb-1">Testing Tips:</p>
                <ul className="list-disc pl-4 space-y-1">
-                 <li>Login as <strong>Admin</strong> to use GPT-4.</li>
-                 <li>Try banned words like "hack" to test filters.</li>
+                 <li>Users can access Mixtral & Llama 3.1 8B models.</li>
+                 <li>Agents can access Llama 3.1 70B & Llama 2 70B models.</li>
+                 <li>Try banned words like "hack" to test content filters.</li>
                </ul>
             </div>
           </div>
