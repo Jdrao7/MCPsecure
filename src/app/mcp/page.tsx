@@ -25,7 +25,7 @@ export default function MCPApiPage() {
   const [identity, setIdentity] = useState<Identity | null>(null);
   
   // Form State
-  const [model, setModel] = useState("mixtral-8x7b-32768");
+  const [model, setModel] = useState("llama-3.1-8b-instant");
   const [tool, setTool] = useState("");
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -121,7 +121,8 @@ export default function MCPApiPage() {
                       className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="llama-3.1-8b-instant">Llama 3.1 8B (Fastest)</option>
-                      <option value="llama-3.1-70b-versatile">Llama 3.1 70B (Advanced - Agent+)</option>
+                      <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Advanced)</option>
+                      <option value="meta-llama/llama-guard-4-12b">Llama Guard 4 (Safety)</option>
                     </select>
                   </div>
                   <div>

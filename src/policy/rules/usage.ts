@@ -12,13 +12,15 @@ export class UsagePolicy implements Policy {
   /**
    * Model access matrix by role
    * Maps models to the minimum required role
-   * Based on Groq available models
+   * Based on Groq available models (Dec 2025)
    */
   private modelRoleMatrix: Record<string, Role> = {
-    // Basic models - accessible to all users
+    // Basic models - fast, accessible to all users
     "llama-3.1-8b-instant": "user",
-    // Advanced models - agents and admins
-    "llama-3.1-70b-versatile": "agent",
+    // Advanced models - better reasoning, agents and admins
+    "llama-3.3-70b-versatile": "agent",
+    // Safety/moderation model - guard model, agents and admins
+    "meta-llama/llama-guard-4-12b": "agent",
   };
 
   /**

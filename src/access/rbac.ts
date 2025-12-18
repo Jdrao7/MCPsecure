@@ -40,22 +40,21 @@ export function canExecuteModel(identity: Identity, model: string): boolean {
     return true;
   }
 
-  // Non-admin can only use basic models (Llama 3.1 8B)
+  // Non-admin can only use basic models
   if (hasPermission(identity, "use:basic:model")) {
-    // Allow basic models for user and agent
+    // Basic models - accessible to all users
     const basicModels = [
       "llama-3.1-8b-instant",
     ];
-    const agentModels = [
-      "llama-3.1-70b-versatile",
-    ];
-    
     if (basicModels.includes(model)) {
       return true;
     }
     
-    // Agent can use agent models
-    if (agentModels.includes(model) && identity.role === "agent") {
+    // Advanced models - accessible to agents and admins
+    const advancedModels = [
+      "llama-3.3-70b-versatile",
+    ];
+    if (advancedModels.includes(model) && identity.role === "agent") {
       return true;
     }
   }
